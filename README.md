@@ -1,7 +1,14 @@
 # pomodoro-timer
-A pomodoro focus timer with 25 minutes interval.
+A pomodoro focus timer cli ASCII app with 25 minutes interval and a stoppage alert sound.
 
-Currently Learning Java and Spring ...
+## Automating Program Compilation with a Makefile
+- To build target simply use: make build
+- To run target simply use: make run
+
+## Verbose Build and Run Command
+- mvn clean package
+- java -jar /Users/dgodstand/spring/pomodoro-timer/pomodoro-timer/target/pomodoro-timer-0.0.1-SNAPSHOT.jar
+
 
 ## The 2 endpoints 
 - http://localhost:8080/start
