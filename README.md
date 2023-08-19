@@ -13,3 +13,7 @@ A pomodoro focus timer cli ASCII app with 25 minutes interval and a stoppage ale
 - http://localhost:8080/start
 - http://localhost:8080/stop
 
+## To Start and Stop from the terminal use 
+- curl http://localhost:8080/start
+- curl http://localhost:8080/stop
+
