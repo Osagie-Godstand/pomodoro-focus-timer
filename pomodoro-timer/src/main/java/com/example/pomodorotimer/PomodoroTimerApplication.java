@@ -16,7 +16,7 @@ public class PomodoroTimerApplication
     public class PomodoroController 
     {
         private boolean timerActive = false;
-        private final long pomodoroDuration = 25 * 60 * 1000;
+        private final long pomodoroDuration = 25 * 60 * 1000; 
         private StringBuilder asciiTimerTemplate;
 
         public PomodoroController() 
@@ -62,33 +62,29 @@ public class PomodoroTimerApplication
             return "No active timer to stop";
         }
 
-        private void runTimer() 
-        {
-            while (timerActive) 
-            {
+        private void runTimer() {
+            while (timerActive) {
                 long remainingTime = pomodoroDuration;
-
-                while (remainingTime > 0 && timerActive) 
-                {
+        
+                while (remainingTime > 0 && timerActive) {
                     updateAndDisplayAsciiTimer(remainingTime);
-                    try 
-                    {
+                    try {
                         Thread.sleep(1000); // Sleep for 1 second
                         remainingTime -= 1000;
-                    } catch (InterruptedException e) 
-                    {
+                    } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                         System.err.println("Timer thread interrupted: " + e.getMessage());
                     }
                 }
-
-                if (timerActive) 
-                {
+        
+                if (timerActive) {
                     System.out.println("Pomodoro completed!");
                     playAlertSound(); // Play the ringing sound here
+                    timerActive = false; // Stop the timer loop
                 }
             }
         }
+        
 
         private void updateAndDisplayAsciiTimer(long millis) 
         {
@@ -105,7 +101,7 @@ public class PomodoroTimerApplication
         {
             try 
             {
-                File soundFile = new File("/Users/dgodstand/downloads/success-fanfare-trumpets-6185.mp3");
+                File soundFile = new File("/Users/dgodstand/Downloads/trumpet_x.wav");
                 AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
                 Clip clip = AudioSystem.getClip();
                 clip.open(audioInputStream);
