@@ -15,38 +15,34 @@ public class PomodoroTimerApplication
     @RestController
     public class PomodoroController 
     {
-        private boolean timerActive = false;
-        private final long pomodoroDuration = 25 * 60 * 1000; 
+        private volatile boolean timerActive = false;
+        private final long pomodoroDuration = 50 * 60 * 1000;
+        private final int sleepInterval = 1000; // Constant for sleep and decrement
         private StringBuilder asciiTimerTemplate;
-
+        private final Object lock = new Object();
+        
         public PomodoroController() 
         {
-            // Initialize the ASCII template
             asciiTimerTemplate = new StringBuilder();
-            asciiTimerTemplate.append("\u001B[36m"); // Cyan color
-            asciiTimerTemplate.append("      /\\      \n");
-            asciiTimerTemplate.append("     /  \\     \n");
-            asciiTimerTemplate.append("    /    \\    \n");
-            asciiTimerTemplate.append("   /------\\   \n");
-            asciiTimerTemplate.append("  /        \\  \n");
-            asciiTimerTemplate.append(" /          \\ \n");
-            asciiTimerTemplate.append("╭────────────╮\n");
-            asciiTimerTemplate.append("│ Pomodoro   │\n");
-            asciiTimerTemplate.append("│ Time       │\n");
-            asciiTimerTemplate.append("│ Remaining  │\n");
-            asciiTimerTemplate.append("│ %02d:%02d   │\n");
-            asciiTimerTemplate.append("╰────────────╯\n");
-            asciiTimerTemplate.append("\u001B[0m"); // Reset color
+            asciiTimerTemplate.append("╭────────────────╮\n");
+            asciiTimerTemplate.append("│   Pomodoro     │\n");
+            asciiTimerTemplate.append("│                │\n");
+            asciiTimerTemplate.append("│  Time Remaining│\n");
+            asciiTimerTemplate.append("│   %02d:%02d     │\n");
+            asciiTimerTemplate.append("│                │\n");
+            asciiTimerTemplate.append("╰────────────────╯\n");
         } 
 
         @GetMapping("/start")
         public String startTimer() 
         {
-            if (!timerActive) 
-            {
-                timerActive = true;
-                new Thread(this::runTimer).start();
-                return "Timer started";
+            synchronized (lock) {
+                if (!timerActive) 
+                {
+                    timerActive = true;
+                    new Thread(this::runTimer).start();
+                    return "Timer started";
+                }
             }
             return "Timer is already active";
         }
@@ -54,10 +50,12 @@ public class PomodoroTimerApplication
         @GetMapping("/stop")
         public String stopTimer() 
         {
-            if (timerActive) 
-            {
-                timerActive = false;
-                return "Timer stopped";
+            synchronized (lock) {
+                if (timerActive) 
+                {
+                    timerActive = false;
+                    return "Timer stopped";
+                }
             }
             return "No active timer to stop";
         }
@@ -69,8 +67,8 @@ public class PomodoroTimerApplication
                 while (remainingTime > 0 && timerActive) {
                     updateAndDisplayAsciiTimer(remainingTime);
                     try {
-                        Thread.sleep(1000); // Sleep for 1 second
-                        remainingTime -= 1000;
+                        Thread.sleep(sleepInterval);
+                        remainingTime -= sleepInterval;
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                         System.err.println("Timer thread interrupted: " + e.getMessage());
@@ -79,12 +77,11 @@ public class PomodoroTimerApplication
         
                 if (timerActive) {
                     System.out.println("Pomodoro completed!");
-                    playAlertSound(); // Play the ringing sound here
-                    timerActive = false; // Stop the timer loop
+                    playAlertSound();
+                    timerActive = false;
                 }
             }
         }
-        
 
         private void updateAndDisplayAsciiTimer(long millis) 
         {
@@ -96,24 +93,34 @@ public class PomodoroTimerApplication
             System.out.print(formattedAsciiTimer); // Print updated timer
             System.out.flush();
         }
-
-        private void playAlertSound() 
+    
+    private void playAlertSound() 
+    {
+        try 
         {
-            try 
-            {
-                File soundFile = new File("/Users/dgodstand/Downloads/trumpet_x.wav");
-                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
-                Clip clip = AudioSystem.getClip();
-                clip.open(audioInputStream);
-                clip.start();
-            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) 
-            {
-                System.err.println("Error playing ring sound: " + e.getMessage());
-            }
+            File soundFile = new File("/Users/dgodstand/Downloads/trumpet_x.wav");
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+        } catch (UnsupportedAudioFileException e) {
+            System.err.println("Unsupported audio file: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("IO error while playing sound: " + e.getMessage());
+        } catch (LineUnavailableException e) {
+            System.err.println("Line unavailable: " + e.getMessage());
         }
-    } 
+    }
+} 
+
+
+    
     public static void main(String[] args) 
     {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Shutting down...");
+        }));
+        
         SpringApplication.run(PomodoroTimerApplication.class, args);
     }
 }

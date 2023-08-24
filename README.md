@@ -1,5 +1,5 @@
 # pomodoro-timer
-A pomodoro focus-timer cli ASCII app with 25 minutes interval and a stoppage alert sound.
+A pomodoro focus-timer cli ASCII app with 50 minutes interval and a stoppage alert sound.
 
 ## Automating Program Compilation with a Makefile
 - To build target simply use: make build
