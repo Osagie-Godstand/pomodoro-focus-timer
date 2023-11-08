@@ -1,5 +1,5 @@
 # pomodoro-timer
-A pomodoro focus-timer cli ASCII app with 50 minutes interval and a stoppage alert sound.
+A simple Pomodoro timer CLI ASCII application built using the Spring Boot framework.
 
 ## Automating Program Compilation with a Makefile
 - To build target simply use: make build
@@ -7,7 +7,7 @@ A pomodoro focus-timer cli ASCII app with 50 minutes interval and a stoppage ale
 
 ## Verbose Build and Run Command
 - mvn clean package
-- java -jar /Users/dgodstand/spring/pomodoro-timer/pomodoro-timer/target/pomodoro-timer-0.0.1-SNAPSHOT.jar
+- java -jar /Users/dgodstand/java/pomodoro-focus-timer/pomodoro-timer/target/pomodoro-timer-0.0.1-SNAPSHOT.jar
 
 ## The 2 endpoints 
 - http://localhost:8080/start
