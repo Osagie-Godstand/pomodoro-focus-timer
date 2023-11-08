@@ -16,8 +16,9 @@ public class PomodoroTimerApplication
     public class PomodoroController 
     {
         private volatile boolean timerActive = false;
-        private final long pomodoroDuration = 50 * 60 * 1000;
-        private final int sleepInterval = 1000; // Constant for sleep and decrement
+        private final long workDuration = 25 * 60 * 1000; // 25 minutes work session
+        private final long breakDuration = 5 * 60 * 1000; // 5 minutes break
+        private final int sleepInterval = 1000; // 1 second
         private StringBuilder asciiTimerTemplate;
         private final Object lock = new Object();
         
@@ -62,24 +63,44 @@ public class PomodoroTimerApplication
 
         private void runTimer() {
             while (timerActive) {
-                long remainingTime = pomodoroDuration;
-        
-                while (remainingTime > 0 && timerActive) {
-                    updateAndDisplayAsciiTimer(remainingTime);
-                    try {
-                        Thread.sleep(sleepInterval);
-                        remainingTime -= sleepInterval;
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        System.err.println("Timer thread interrupted: " + e.getMessage());
-                    }
+                performWorkSession();
+                performBreak();
+            }
+        }
+
+        private void performWorkSession() {
+            long remainingTime = workDuration;
+            while (remainingTime > 0 && timerActive) {
+                updateAndDisplayAsciiTimer(remainingTime);
+                try {
+                    Thread.sleep(sleepInterval);
+                    remainingTime -= sleepInterval;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    System.err.println("Timer thread interrupted: " + e.getMessage());
                 }
+            }
+            if (timerActive) {
+                System.out.println("Work session completed!");
+                playAlertSound();
+            }
+        }
         
-                if (timerActive) {
-                    System.out.println("Pomodoro completed!");
-                    playAlertSound();
-                    timerActive = false;
+        private void performBreak() {
+            long remainingTime = breakDuration;
+            while (remainingTime > 0 && timerActive) {
+                updateAndDisplayAsciiTimer(remainingTime);
+                try {
+                    Thread.sleep(sleepInterval);
+                    remainingTime -= sleepInterval;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    System.err.println("Timer thread interrupted: " + e.getMessage());
                 }
+            }
+            if (timerActive) {
+                System.out.println("Break time completed!");
+                playAlertSound();
             }
         }
 
@@ -94,27 +115,25 @@ public class PomodoroTimerApplication
             System.out.flush();
         }
     
-    private void playAlertSound() 
-    {
-        try 
+        private void playAlertSound() 
         {
-            File soundFile = new File("/Users/dgodstand/Downloads/trumpet_x.wav");
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioInputStream);
-            clip.start();
-        } catch (UnsupportedAudioFileException e) {
-            System.err.println("Unsupported audio file: " + e.getMessage());
-        } catch (IOException e) {
-            System.err.println("IO error while playing sound: " + e.getMessage());
-        } catch (LineUnavailableException e) {
-            System.err.println("Line unavailable: " + e.getMessage());
+            try 
+            {
+                File soundFile = new File("/Users/dgodstand/Downloads/trumpet_x.wav");
+                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioInputStream);
+                clip.start();
+            } catch (UnsupportedAudioFileException e) {
+                System.err.println("Unsupported audio file: " + e.getMessage());
+            } catch (IOException e) {
+                System.err.println("IO error while playing sound: " + e.getMessage());
+            } catch (LineUnavailableException e) {
+                System.err.println("Line unavailable: " + e.getMessage());
+            }
         }
-    }
-} 
+    } 
 
-
-    
     public static void main(String[] args) 
     {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
