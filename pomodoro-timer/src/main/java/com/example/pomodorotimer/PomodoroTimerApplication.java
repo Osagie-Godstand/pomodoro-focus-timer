@@ -68,27 +68,33 @@ public class PomodoroTimerApplication
             }
         }
 
-        private void performWorkSession() {
+        private void performWorkSession() 
+        {
             long remainingTime = workDuration;
-            while (remainingTime > 0 && timerActive) {
+            while (remainingTime > 0 && timerActive) 
+            {
                 updateAndDisplayAsciiTimer(remainingTime);
                 try {
                     Thread.sleep(sleepInterval);
                     remainingTime -= sleepInterval;
-                } catch (InterruptedException e) {
+                } catch (InterruptedException e) 
+                {
                     Thread.currentThread().interrupt();
                     System.err.println("Timer thread interrupted: " + e.getMessage());
                 }
             }
-            if (timerActive) {
+            if (timerActive) 
+            {
                 System.out.println("Work session completed!");
                 playAlertSound();
             }
         }
         
-        private void performBreak() {
+        private void performBreak() 
+        {
             long remainingTime = breakDuration;
-            while (remainingTime > 0 && timerActive) {
+            while (remainingTime > 0 && timerActive) 
+            {
                 updateAndDisplayAsciiTimer(remainingTime);
                 try {
                     Thread.sleep(sleepInterval);
@@ -98,7 +104,8 @@ public class PomodoroTimerApplication
                     System.err.println("Timer thread interrupted: " + e.getMessage());
                 }
             }
-            if (timerActive) {
+            if (timerActive) 
+            {
                 System.out.println("Break time completed!");
                 playAlertSound();
             }
@@ -117,8 +124,7 @@ public class PomodoroTimerApplication
     
         private void playAlertSound() 
         {
-            try 
-            {
+            try {
                 File soundFile = new File("/Users/dgodstand/Downloads/trumpet_x.wav");
                 AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
                 Clip clip = AudioSystem.getClip();
@@ -143,3 +149,4 @@ public class PomodoroTimerApplication
         SpringApplication.run(PomodoroTimerApplication.class, args);
     }
 }
+
